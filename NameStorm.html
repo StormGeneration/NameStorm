@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NameStorm</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #2c2c3f);
+      color: #cfd8dc;
+    }
+
+    /* Prevent body from always scrolling; app scrolls when needed */
+    body {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    /* Top bar stays visible so title + main button are always on-screen */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-main {
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00bcd4, #0097a7);
+      color: white;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #455a64;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Main scrollable area */
+    .app {
+      width: 100%;
+      flex: 1 1 auto;
+      max-height: calc(100vh - 92px);
+      overflow: auto;
+      border-radius: 12px;
+      padding: 18px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .name-grid, .picked-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .name-box, .picked-box {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      color: #ffffff;
+      text-align: center;
+      border: none;
+    }
+    .picked-box {
+      background: rgba(0, 188, 212, 0.14);
+    }
+
+    .controls { margin-top: 14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    label {
+      font-size: 15px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #cfd8dc;
+    }
+    input[type="checkbox"] { width: 16px; height: 16px; }
+
+    button.small {
+      padding: 10px 14px;
+      font-size: 14px;
+      border-radius: 8px;
+      background: #607d8b;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #picked {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 6px;
+      color: #00bcd4;
+    }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #2c2c3f;
+      padding: 28px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      color: #ffffff;
+      font-size: 18px;
+    }
+
+    /* Preset button corner */
+    #presetCorner {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    /* Preset full modal and other styles kept minimal for brevity */
+    .modal.fullscreen { align-items: flex-start; padding: 20px; background: rgba(0,0,0,0.85); }
+    .fullscreen-content { width: 100%; max-width: 820px; max-height: 90vh; overflow:auto; background:#2c2c3f; padding:18px; border-radius:12px; }
+
+    .close-button {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  font-size: 20px;
+  line-height: 1;
+  color: #e0f7fa;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(224,247,250,0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+/* Hover / focus states */
+.close-button:hover,
+.close-button:focus {
+  transform: translateY(-2px);
+  outline: none;
+  background: linear-gradient(180deg, rgba(0,188,212,0.12), rgba(0,188,212,0.06));
+  box-shadow: 0 6px 16px rgba(0,188,212,0.12);
+  color: #ffffff;
+}
+
+/* Active (pressed) state */
+.close-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+}
+
+/* Accessible focus ring for keyboard users */
+.close-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0,188,212,0.18), 0 6px 16px rgba(0,0,0,0.35);
+}
+
+footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+  color: #90a4ae;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+}
+
+
+@keyframes bounceGlow {
+  0% {
+    transform: scale(1);
+    color: #00bcd4;
+    text-shadow: none;
+  }
+  50% {
+    transform: scale(1.4);
+    color: #ffffff;
+    text-shadow: 0 0 12px #00bcd4;
+  }
+  100% {
+    transform: scale(1);
+    color: #00bcd4;
+    text-shadow: none;
+  }
+}
+
+#picked.animate {
+  animation: bounceGlow 0.6s ease;
+}
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+      .btn-main { font-size: 14px; padding: 8px 12px; }
+      .app { max-height: calc(100vh - 120px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="presetCorner">
+    <button class="btn-secondary" onclick="showPresetList()">Presets</button>
+  </div>
+
+  <div class="topbar">
+    <h1>NameStorm</h1> 
+    <p>Created by Derrick Richard | 2025</p>
+
+    <div class="top-actions">
+      <!-- Keep smaller controls accessible in topbar -->
+    </div>
+  </div>
+
+  <div class="app" id="app">
+    <div class="grid">
+      <div>
+        <label>Enter student names:</label>
+        <div id="nameGrid" class="name-grid"></div>
+        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="small" onclick="addNameBox('', 6)">Add More</button>
+          <button class="small" onclick="clearNameBoxes()">Clear</button>
+        </div>
+
+        <div class="controls">
+          <label><input type="checkbox" id="noRepeats"> Don't repeat until all picked</label>
+          <!-- Duplicate main button placed here too so users can access from either area -->
+          <button class="small" onclick="pickName()">Pick a Random Name</button>
+          <button class="small" onclick="resetPicker()">Reset</button>
+        </div>
+      </div>
+
+      <div>
+        <div id="picked">Picked: </div>
+        <label style="margin-top: 20px; display:block;">Names already picked:</label>
+        <div id="pickedList" class="picked-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple popup modal -->
+  <div class="modal" id="popup">
+    <div class="modal-content">
+      <p>All names have been picked.</p>
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
+        <button class="btn-main" onclick="restartList()">Start Over</button>
+        <button class="btn-secondary" onclick="closePopup()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preset list modal (kept simple) -->
+  <div class="modal fullscreen" id="presetList" aria-hidden="true">
+    <div class="modal-content fullscreen-content" role="dialog" aria-modal="true">
+      <button style="float:right;" onclick="closePresetList()">×</button>
+      <h2>Presets</h2>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn-secondary" onclick="showPresetForm()">Create Preset</button>
+        <button class="btn-secondary" onclick="exportPresets()">Export</button>
+      </div>
+      <div id="presetListContainer" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Create preset modal -->
+  <div class="modal fullscreen" id="presetForm" aria-hidden="true">
+    <div class="modal-content fullscreen-content" role="dialog" aria-modal="true">
+      <button style="float:right;" onclick="closePresetForm()">×</button>
+      <h2>Create a New Preset</h2>
+      <input type="text" id="presetName" placeholder="Preset name" style="width:100%; padding:8px; margin-top:8px; border-radius:8px; border: none;">
+      <div id="presetNameGrid" class="name-grid" style="margin-top:12px;"></div>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn-main" onclick="addPresetBox('', 6)">Add More</button>
+        <button class="btn-secondary" onclick="clearPresetBoxes()">Clear</button>
+        <button class="btn-main" onclick="savePreset()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allNames = [];
+    let remainingNames = [];
+    let pickedNames = [];
+
+    function addNameBox(value = '', count = 1) {
+      const grid = document.getElementById('nameGrid');
+      for (let i = 0; i < count; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'name-box';
+        input.placeholder = 'Student name';
+        input.value = value;
+        grid.appendChild(input);
+      }
+      ensureAppScrollIfNeeded();
+    }
+
+    function clearNameBoxes() {
+      document.getElementById('nameGrid').innerHTML = '';
+      ensureAppScrollIfNeeded();
+    }
+
+    function getAllNames() {
+      const inputs = document.querySelectorAll('#nameGrid .name-box');
+      return Array.from(inputs).map(i => i.value.trim()).filter(n => n !== '');
+    }
+
+    function updatePickedList() {
+      const container = document.getElementById('pickedList');
+      container.innerHTML = '';
+      pickedNames.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'picked-box';
+        div.textContent = name;
+        container.appendChild(div);
+      });
+    }
+
+    function resetPicker() {
+      remainingNames = [];
+      pickedNames = [];
+      document.getElementById('picked').innerText = 'Picked: ';
+      document.getElementById('pickedList').innerHTML = '';
+    }
+
+    function pickName() {
+  const noRepeats = document.getElementById('noRepeats').checked;
+  if (!remainingNames.length) {
+    allNames = getAllNames();
+    if (allNames.length === 0) {
+      alert('Please enter at least one name.');
+      return;
+    }
+    remainingNames = allNames.slice();
+  }
+  if (noRepeats && remainingNames.length === 0) {
+    showPopup();
+    return;
+  }
+
+  const idx = Math.floor(Math.random() * remainingNames.length);
+  const picked = remainingNames.splice(idx, 1)[0];
+  pickedNames.push(picked);
+
+  const pickedEl = document.getElementById('picked');
+  pickedEl.innerText = `Picked: ${picked}`;
+  pickedEl.classList.add('animate');
+  setTimeout(() => pickedEl.classList.remove('animate'), 600);
+
+  updatePickedList();
+
+  if (noRepeats && remainingNames.length === 0) {
+    showPopup();
+  }
+}
+
+    function showPopup() { document.getElementById('popup').style.display = 'flex'; }
+    function closePopup() { document.getElementById('popup').style.display = 'none'; }
+    function restartList() { resetPicker(); closePopup(); }
+
+    // Preset storage helpers (kept from previous implementation)
+    function getPresetsObject() {
+      return JSON.parse(localStorage.getItem('namePresets') || '{}');
+    }
+    function updatePresetListUI() {
+      const container = document.getElementById('presetListContainer');
+      const presets = getPresetsObject();
+      container.innerHTML = '';
+      const keys = Object.keys(presets).sort((a,b) => a.localeCompare(b, undefined, {sensitivity:'base'}));
+      if (keys.length === 0) {
+        container.textContent = 'No presets saved yet.';
+        return;
+      }
+      keys.forEach(key => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.alignItems = 'center';
+        div.style.padding = '8px';
+        div.style.borderRadius = '8px';
+        div.style.background = 'rgba(255,255,255,0.02)';
+        div.style.marginTop = '8px';
+
+        const left = document.createElement('div');
+        left.style.display = 'flex';
+        left.style.flexDirection = 'column';
+        left.style.gap = '4px';
+        const title = document.createElement('button');
+        title.className = 'small';
+        title.textContent = key;
+        title.onclick = () => { loadPresetByName(key); closePresetList(); };
+        title.style.background = 'transparent';
+        title.style.color = '#00bcd4';
+        title.style.border = 'none';
+        title.style.textAlign = 'left';
+        title.style.fontSize = '15px';
+        left.appendChild(title);
+        const meta = document.createElement('div');
+        meta.style.fontSize = '12px';
+        meta.style.color = '#b0bec5';
+        const count = presets[key] ? presets[key].split('\n').filter(s=>s.trim()!=='').length : 0;
+        meta.textContent = `${count} names`;
+        left.appendChild(meta);
+
+        const right = document.createElement('div');
+        right.style.display = 'flex';
+        right.style.gap = '6px';
+        const del = document.createElement('button');
+        del.className = 'small';
+        del.textContent = 'Delete';
+        del.onclick = () => { if (confirm(`Delete preset "${key}"?`)) { deletePreset(key); updatePresetListUI(); } };
+        right.appendChild(del);
+
+        div.appendChild(left);
+        div.appendChild(right);
+        container.appendChild(div);
+      });
+    }
+
+    function showPresetList() {
+      updatePresetListUI();
+      document.getElementById('presetList').style.display = 'flex';
+      disableAppScroll();
+    }
+    function closePresetList() {
+      document.getElementById('presetList').style.display = 'none';
+      enableAppScroll();
+    }
+
+    function showPresetForm() {
+      document.getElementById('presetName').value = '';
+      document.getElementById('presetNameGrid').innerHTML = '';
+      addPresetBox('', 10);
+      document.getElementById('presetForm').style.display = 'flex';
+      disableAppScroll();
+    }
+    function closePresetForm() {
+      document.getElementById('presetForm').style.display = 'none';
+      enableAppScroll();
+    }
+
+    function addPresetBox(value = '', count = 1) {
+      const grid = document.getElementById('presetNameGrid');
+      for (let i = 0; i < count; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'name-box';
+        input.placeholder = 'Student name';
+        input.value = value;
+        grid.appendChild(input);
+      }
+    }
+    function getPresetNames() {
+      const inputs = document.querySelectorAll('#presetNameGrid .name-box');
+      return Array.from(inputs).map(i => i.value.trim()).filter(n => n !== '');
+    }
+    function clearPresetBoxes() { document.getElementById('presetNameGrid').innerHTML = ''; }
+
+    function savePreset() {
+      const name = document.getElementById('presetName').value.trim();
+      const namesArr = getPresetNames();
+      if (!name || namesArr.length === 0) { alert('Please enter both a preset name and names.'); return; }
+      const presets = getPresetsObject();
+      presets[name] = namesArr.join('\n');
+      localStorage.setItem('namePresets', JSON.stringify(presets));
+      updatePresetListUI();
+      closePresetForm();
+    }
+    function deletePreset(name) {
+      const presets = getPresetsObject();
+      if (presets[name]) { delete presets[name]; localStorage.setItem('namePresets', JSON.stringify(presets)); }
+    }
+    function loadPresetByName(name) {
+      const presets = getPresetsObject();
+      if (presets[name]) {
+        resetPicker();
+        clearNameBoxes();
+        const names = presets[name].split('\n').filter(s=>s.trim()!=='');
+        names.forEach(n => addNameBox(n));
+        ensureAppScrollIfNeeded();
+      }
+    }
+    function exportPresets() {
+      const presets = getPresetsObject();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(presets, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = 'presets.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // Scroll control helpers so topbar remains visible and app scrolls only when needed
+    function ensureAppScrollIfNeeded() {
+      const app = document.getElementById('app');
+      requestAnimationFrame(() => {
+        if (app.scrollHeight > app.clientHeight) {
+          app.style.overflow = 'auto';
+        } else {
+          app.style.overflow = 'hidden';
+        }
+      });
+    }
+    function disableAppScroll() {
+      const app = document.getElementById('app');
+      app.style.pointerEvents = 'none';
+      app.style.overflow = 'hidden';
+    }
+    function enableAppScroll() {
+      const app = document.getElementById('app');
+      app.style.pointerEvents = 'auto';
+      ensureAppScrollIfNeeded();
+    }
+
+    // Initialize with some name boxes and preset UI
+    addNameBox('', 20);
+    updatePresetListUI();
+    ensureAppScrollIfNeeded();
+
+    // Re-check app scroll status when window resizes or content changes
+    window.addEventListener('resize', ensureAppScrollIfNeeded);
+    const observer = new MutationObserver(ensureAppScrollIfNeeded);
+    observer.observe(document.getElementById('nameGrid'), { childList: true, subtree: true, characterData: true });
+
+    // Close modals with Escape and clicking outside
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        enableAppScroll();
+      }
+    });
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (ev) => {
+        if (ev.target === modal) { modal.style.display = 'none'; enableAppScroll(); }
+      });
+    });
+  </script>
+</body>
+</html>
