@@ -165,84 +165,155 @@
     .fullscreen-content { width: 100%; max-width: 820px; max-height: 90vh; overflow:auto; background:#2c2c3f; padding:18px; border-radius:12px; }
 
     .close-button {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: inline-grid;
-  place-items: center;
-  font-size: 20px;
-  line-height: 1;
-  color: #e0f7fa;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border: 1px solid rgba(224,247,250,0.08);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-}
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+      font-size: 20px;
+      line-height: 1;
+      color: #e0f7fa;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(224,247,250,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    }
 
-/* Hover / focus states */
-.close-button:hover,
-.close-button:focus {
-  transform: translateY(-2px);
-  outline: none;
-  background: linear-gradient(180deg, rgba(0,188,212,0.12), rgba(0,188,212,0.06));
-  box-shadow: 0 6px 16px rgba(0,188,212,0.12);
-  color: #ffffff;
-}
+    /* Hover / focus states */
+    .close-button:hover,
+    .close-button:focus {
+      transform: translateY(-2px);
+      outline: none;
+      background: linear-gradient(180deg, rgba(0,188,212,0.12), rgba(0,188,212,0.06));
+      box-shadow: 0 6px 16px rgba(0,188,212,0.12);
+      color: #ffffff;
+    }
 
-/* Active (pressed) state */
-.close-button:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
-}
+    /* Active (pressed) state */
+    .close-button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+    }
 
-/* Accessible focus ring for keyboard users */
-.close-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(0,188,212,0.18), 0 6px 16px rgba(0,0,0,0.35);
-}
+    /* Accessible focus ring for keyboard users */
+    .close-button:focus-visible {
+      box-shadow: 0 0 0 3px rgba(0,188,212,0.18), 0 6px 16px rgba(0,0,0,0.35);
+    }
 
-footer {
-  text-align: center;
-  padding: 16px;
-  font-size: 14px;
-  color: #90a4ae;
-  background: rgba(255, 255, 255, 0.02);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  margin-top: auto;
-}
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 14px;
+      color: #90a4ae;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: auto;
+    }
 
 
-@keyframes bounceGlow {
-  0% {
-    transform: scale(1);
-    color: #00bcd4;
-    text-shadow: none;
-  }
-  50% {
-    transform: scale(1.4);
-    color: #ffffff;
-    text-shadow: 0 0 12px #00bcd4;
-  }
-  100% {
-    transform: scale(1);
-    color: #00bcd4;
-    text-shadow: none;
-  }
-}
+    @keyframes bounceGlow {
+      0% {
+        transform: scale(1);
+        color: #00bcd4;
+        text-shadow: none;
+      }
+      50% {
+        transform: scale(1.4);
+        color: #ffffff;
+        text-shadow: 0 0 12px #00bcd4;
+      }
+      100% {
+        transform: scale(1);
+        color: #00bcd4;
+        text-shadow: none;
+      }
+    }
 
-#picked.animate {
-  animation: bounceGlow 0.6s ease;
-}
+    #picked.animate {
+      animation: bounceGlow 0.6s ease;
+    }
 
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
       h1 { font-size: 22px; }
       .btn-main { font-size: 14px; padding: 8px 12px; }
       .app { max-height: calc(100vh - 120px); }
+    }
+
+    /* Popup overlay & modal (added) */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .overlay.show { display: flex; }
+
+    .modal-popup {
+      width: 880px;
+      max-width: calc(100% - 40px);
+      max-height: calc(100% - 80px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-popup header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-popup h3 {
+      margin: 0;
+      font-size: 20px;
+      color: #e0f7fa;
+    }
+    .modal-popup .close {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: #cfd8dc;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 6px;
+    }
+    .modal-popup .close:hover { background: rgba(255,255,255,0.03); }
+
+    .modal-popup .iframe-wrap {
+      flex: 1 1 auto;
+      overflow: auto;
+      border-radius: 8px;
+      background: transparent;
+      padding: 6px 0 0 0;
+    }
+
+    .modal-popup iframe {
+      width: 100%;
+      height: 70vh;
+      max-height: calc(100% - 72px);
+      border: none;
+      border-radius: 8px;
+      display: block;
+    }
+
+    @media (max-width: 960px) {
+      .modal-popup { width: 100%; padding: 12px; max-height: calc(100% - 40px); }
+      .modal-popup iframe { height: 60vh; }
     }
   </style>
 </head>
@@ -251,7 +322,7 @@ footer {
     <button class="btn-secondary" onclick="showPresetList()">Presets</button>
   </div>
 
-  <div class="topbar">
+  <div class="topbar" id="topbar">
     <h1>NameStorm</h1> 
     <p>Created by Derrick Richard | 2025</p>
 
@@ -286,7 +357,7 @@ footer {
     </div>
   </div>
 
-  <!-- Simple popup modal -->
+  <!-- Existing simple popup modal -->
   <div class="modal" id="popup">
     <div class="modal-content">
       <p>All names have been picked.</p>
@@ -321,6 +392,27 @@ footer {
         <button class="btn-main" onclick="addPresetBox('', 6)">Add More</button>
         <button class="btn-secondary" onclick="clearPresetBoxes()">Clear</button>
         <button class="btn-main" onclick="savePreset()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW: Popup overlay with embedded Google Form -->
+  <div id="feedbackOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle" aria-hidden="true">
+    <div class="modal-popup" role="document" aria-describedby="feedbackDesc">
+      <header>
+        <h3 id="feedbackTitle">Have a suggestion? Fill out this form.</h3>
+        <button class="close" aria-label="Close form popup" id="closePopup">&times;</button>
+      </header>
+
+      <div class="iframe-wrap" id="iframeWrap">
+        <iframe
+          src="https://docs.google.com/forms/d/e/1FAIpQLSdflhDwFL3OLQro1vchsRbYe71A9aSj7ZeVe9TKuFKgaUgnbA/viewform?embedded=true"
+          title="Suggestion Form"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        >
+          Loading…
+        </iframe>
       </div>
     </div>
   </div>
@@ -372,38 +464,38 @@ footer {
     }
 
     function pickName() {
-  const noRepeats = document.getElementById('noRepeats').checked;
-  if (!remainingNames.length) {
-    allNames = getAllNames();
-    if (allNames.length === 0) {
-      alert('Please enter at least one name.');
-      return;
+      const noRepeats = document.getElementById('noRepeats').checked;
+      if (!remainingNames.length) {
+        allNames = getAllNames();
+        if (allNames.length === 0) {
+          alert('Please enter at least one name.');
+          return;
+        }
+        remainingNames = allNames.slice();
+      }
+      if (noRepeats && remainingNames.length === 0) {
+        showPopup();
+        return;
+      }
+
+      const idx = Math.floor(Math.random() * remainingNames.length);
+      const picked = remainingNames.splice(idx, 1)[0];
+      pickedNames.push(picked);
+
+      const pickedEl = document.getElementById('picked');
+      pickedEl.innerText = `Picked: ${picked}`;
+      pickedEl.classList.add('animate');
+      setTimeout(() => pickedEl.classList.remove('animate'), 600);
+
+      updatePickedList();
+
+      if (noRepeats && remainingNames.length === 0) {
+        showPopup();
+      }
     }
-    remainingNames = allNames.slice();
-  }
-  if (noRepeats && remainingNames.length === 0) {
-    showPopup();
-    return;
-  }
 
-  const idx = Math.floor(Math.random() * remainingNames.length);
-  const picked = remainingNames.splice(idx, 1)[0];
-  pickedNames.push(picked);
-
-  const pickedEl = document.getElementById('picked');
-  pickedEl.innerText = `Picked: ${picked}`;
-  pickedEl.classList.add('animate');
-  setTimeout(() => pickedEl.classList.remove('animate'), 600);
-
-  updatePickedList();
-
-  if (noRepeats && remainingNames.length === 0) {
-    showPopup();
-  }
-}
-
-    function showPopup() { document.getElementById('popup').style.display = 'flex'; }
-    function closePopup() { document.getElementById('popup').style.display = 'none'; }
+    function showPopup() { document.getElementById('popup').style.display = 'flex'; disableAppScroll(); }
+    function closePopup() { document.getElementById('popup').style.display = 'none'; enableAppScroll(); }
     function restartList() { resetPicker(); closePopup(); }
 
     // Preset storage helpers (kept from previous implementation)
@@ -554,11 +646,16 @@ footer {
       const app = document.getElementById('app');
       app.style.pointerEvents = 'none';
       app.style.overflow = 'hidden';
+      // Also hide background from screen readers while modal open
+      document.getElementById('app').setAttribute('aria-hidden', 'true');
+      document.getElementById('topbar').setAttribute('aria-hidden', 'true');
     }
     function enableAppScroll() {
       const app = document.getElementById('app');
       app.style.pointerEvents = 'auto';
       ensureAppScrollIfNeeded();
+      document.getElementById('app').removeAttribute('aria-hidden');
+      document.getElementById('topbar').removeAttribute('aria-hidden');
     }
 
     // Initialize with some name boxes and preset UI
@@ -571,7 +668,7 @@ footer {
     const observer = new MutationObserver(ensureAppScrollIfNeeded);
     observer.observe(document.getElementById('nameGrid'), { childList: true, subtree: true, characterData: true });
 
-    // Close modals with Escape and clicking outside
+    // Close simple modals with Escape and clicking outside (existing modals)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
@@ -583,6 +680,170 @@ footer {
         if (ev.target === modal) { modal.style.display = 'none'; enableAppScroll(); }
       });
     });
+  </script>
+
+  <!-- NEW: Popup behavior script (accessibility, scroll lock, focus trap, scheduling) -->
+  <script>
+    (function () {
+      const overlay = document.getElementById('feedbackOverlay');
+      const closeBtn = document.getElementById('closePopup');
+      const appMain = document.getElementById('app');
+      const topbar = document.getElementById('topbar');
+      let nextTimeout = null;
+      let firstTimeout = null;
+      let previouslyFocused = null;
+
+      // Timing configuration (adjust for production as desired)
+      const firstDelay = 12000; // 12s initial delay
+      const minInterval = 90000; // 1.5 minutes
+      const maxInterval = 210000; // 3.5 minutes
+
+      // Utility: return focusable elements within an element
+      function getFocusableElements(container) {
+        if (!container) return [];
+        const sel = [
+          'a[href]:not([tabindex="-1"])',
+          'area[href]',
+          'input:not([disabled]):not([tabindex="-1"])',
+          'select:not([disabled]):not([tabindex="-1"])',
+          'textarea:not([disabled]):not([tabindex="-1"])',
+          'button:not([disabled]):not([tabindex="-1"])',
+          'iframe',
+          'object',
+          'embed',
+          '[contenteditable]:not([tabindex="-1"])',
+          '[tabindex]:not([tabindex="-1"])'
+        ].join(',');
+        return Array.from(container.querySelectorAll(sel)).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement);
+      }
+
+      function showPopup() {
+        // Save previously focused element to restore later
+        previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+        // Hide background from screen readers
+        if (appMain) appMain.setAttribute('aria-hidden', 'true');
+        if (topbar) topbar.setAttribute('aria-hidden', 'true');
+
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+
+        // Prevent background scroll
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
+        // Focus first focusable element inside modal (close button)
+        const focusables = getFocusableElements(overlay);
+        if (focusables.length) focusables[0].focus();
+        else if (closeBtn) closeBtn.focus();
+
+        // Install keydown listener for focus trapping
+        document.addEventListener('keydown', trapTabKey);
+      }
+
+      function hidePopup() {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+
+        // Restore aria-hidden on main content
+        if (appMain) appMain.removeAttribute('aria-hidden');
+        if (topbar) topbar.removeAttribute('aria-hidden');
+
+        // Restore scrolling
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+
+        // Remove focus trap listener
+        document.removeEventListener('keydown', trapTabKey);
+
+        // Restore previous focus if possible
+        if (previouslyFocused && previouslyFocused.focus) {
+          previouslyFocused.focus();
+        }
+
+        // Schedule next popup
+        scheduleNext();
+      }
+
+      function scheduleNext() {
+        if (nextTimeout) {
+          clearTimeout(nextTimeout);
+        }
+        // Random interval between min and max
+        const when = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+        nextTimeout = setTimeout(showPopup, when);
+      }
+
+      // Basic Tab-key focus trap: keep focus cycling inside overlay
+      function trapTabKey(e) {
+        if (!overlay.classList.contains('show')) return;
+        if (e.key !== 'Tab') return;
+
+        const focusables = getFocusableElements(overlay);
+        if (focusables.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey) {
+          // Shift+Tab
+          if (active === first || !overlay.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          // Tab
+          if (active === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+
+      // Start first scheduled popup
+      firstTimeout = setTimeout(() => {
+        showPopup();
+        scheduleNext();
+      }, firstDelay);
+
+      // Close handlers
+      if (closeBtn) closeBtn.addEventListener('click', hidePopup);
+
+      // Clicking outside the modal closes it
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          hidePopup();
+        }
+      });
+
+      // Esc closes popup
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('show')) {
+          hidePopup();
+        }
+      });
+
+      // Clean up timers on unload so nothing leaks
+      window.addEventListener('beforeunload', () => {
+        if (firstTimeout) clearTimeout(firstTimeout);
+        if (nextTimeout) clearTimeout(nextTimeout);
+      });
+
+      // Ensure modal retains focus if attempts to escape (additional guard)
+      document.addEventListener('focus', function (evt) {
+        if (!overlay.classList.contains('show')) return;
+        if (!overlay.contains(evt.target)) {
+          evt.stopPropagation();
+          const focusables = getFocusableElements(overlay);
+          if (focusables.length) focusables[0].focus();
+          else if (closeBtn) closeBtn.focus();
+        }
+      }, true);
+    })();
   </script>
 </body>
 </html>
