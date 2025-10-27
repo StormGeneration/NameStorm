@@ -315,6 +315,9 @@
       .modal-popup { width: 100%; padding: 12px; max-height: calc(100% - 40px); }
       .modal-popup iframe { height: 60vh; }
     }
+
+    /* Shuffle button visibility helper (same as GroupStorm) */
+    #shuffleBtn { display: none; }
   </style>
 </head>
 <body>
@@ -346,6 +349,8 @@
           <!-- Duplicate main button placed here too so users can access from either area -->
           <button class="small" onclick="pickName()">Pick a Random Name</button>
           <button class="small" onclick="resetPicker()">Reset</button>
+          <!-- NEW: Shuffle button added (same behavior & styling as GroupStorm) -->
+          <button id="shuffleBtn" class="small" onclick="shuffleNames()">Shuffle</button>
         </div>
       </div>
 
@@ -422,6 +427,11 @@
     let remainingNames = [];
     let pickedNames = [];
 
+    // track lastGroupSizes to mimic GroupStorm's shuffle behavior flexibility
+    // In NameStorm we use this to preserve distribution if user wants to shuffle the current picked lists
+    // For backwards compatibility with GroupStorm behavior, we keep the variable even if unused.
+    let lastGroupSizes = [];
+
     function addNameBox(value = '', count = 1) {
       const grid = document.getElementById('nameGrid');
       for (let i = 0; i < count; i++) {
@@ -461,6 +471,8 @@
       pickedNames = [];
       document.getElementById('picked').innerText = 'Picked: ';
       document.getElementById('pickedList').innerHTML = '';
+      // hide shuffle (no groups/picked items)
+      document.getElementById('shuffleBtn').style.display = 'none';
     }
 
     function pickName() {
@@ -488,6 +500,9 @@
       setTimeout(() => pickedEl.classList.remove('animate'), 600);
 
       updatePickedList();
+
+      // show shuffle button when there are picked items (behaves similarly to GroupStorm's availability)
+      document.getElementById('shuffleBtn').style.display = pickedNames.length ? 'inline-block' : 'none';
 
       if (noRepeats && remainingNames.length === 0) {
         showPopup();
@@ -656,6 +671,52 @@
       ensureAppScrollIfNeeded();
       document.getElementById('app').removeAttribute('aria-hidden');
       document.getElementById('topbar').removeAttribute('aria-hidden');
+    }
+
+    // NEW: Shuffle functionality (modeled after GroupStorm's shuffle behavior)
+    // The button appears when there are picked items. If groups existed we'd preserve distribution using lastGroupSizes.
+    // Here we preserve lastGroupSizes if set (for compatibility) otherwise simply shuffle picked list or name inputs.
+    function shuffleNames() {
+      // Gather currently displayed picked names
+      const currentPicked = Array.from(document.querySelectorAll('#pickedList .picked-box'))
+        .map(div => div.textContent)
+        .filter(Boolean);
+
+      // If there are picked names, shuffle them
+      if (currentPicked.length) {
+        const shuffled = [...currentPicked].sort(() => Math.random() - 0.5);
+        pickedNames = shuffled.slice();
+        // If we had lastGroupSizes (from other features) we could preserve distribution; here not applicable
+        updatePickedList();
+        // Also update the picked headline to show last picked after shuffle (mimic visual feedback)
+        const last = pickedNames[pickedNames.length - 1] || '';
+        const pickedEl = document.getElementById('picked');
+        pickedEl.innerText = `Picked: ${last}`;
+        pickedEl.classList.add('animate');
+        setTimeout(() => pickedEl.classList.remove('animate'), 600);
+        return;
+      }
+
+      // Otherwise, if no picked names, shuffle the name input order (so next picks come in a different order)
+      const inputs = Array.from(document.querySelectorAll('#nameGrid .name-box'));
+      if (inputs.length === 0) {
+        alert('No names available to shuffle. Add some names first.');
+        return;
+      }
+      // Extract values, shuffle, then re-render input boxes preserving count
+      const values = inputs.map(i => i.value.trim()).filter(v => v !== '');
+      if (values.length === 0) {
+        alert('No filled names to shuffle. Enter some names first.');
+        return;
+      }
+      const shuffledInputs = [...values].sort(() => Math.random() - 0.5);
+
+      // Clear and repopulate name boxes with shuffled values, preserving number of boxes
+      document.getElementById('nameGrid').innerHTML = '';
+      shuffledInputs.forEach(v => addNameBox(v, 1));
+      ensureAppScrollIfNeeded();
+      // hide shuffle button if no picked names (we keep it visible so user can keep shuffling)
+      document.getElementById('shuffleBtn').style.display = 'inline-block';
     }
 
     // Initialize with some name boxes and preset UI
